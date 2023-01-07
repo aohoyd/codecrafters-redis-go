@@ -24,13 +24,18 @@ func main() {
 	}
 
 	buf := make([]byte, 1024)
-	if _, err = conn.Read(buf); err != nil {
-		fmt.Println("Error reading: ", err.Error())
-		os.Exit(1)
-	}
+	for {
+		switch _, err := conn.Read(buf); {
+		case err == io.EOF:
+			break
+		case err != nil:
+			fmt.Println("Error reading: ", err.Error())
+			os.Exit(1)
+		}
 
-	if _, err = io.WriteString(conn, "+PONG\r\n"); err != nil {
-		fmt.Println("Error writing: ", err.Error())
-		os.Exit(1)
+		if _, err = io.WriteString(conn, "+PONG\r\n"); err != nil {
+			fmt.Println("Error writing: ", err.Error())
+			os.Exit(1)
+		}
 	}
 }
