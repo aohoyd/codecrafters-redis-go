@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 	// Uncomment this block to pass the first stage
@@ -16,9 +17,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	_, err = l.Accept()
+	conn, err := l.Accept()
 	if err != nil {
 		fmt.Println("Error accepting: ", err.Error())
+		os.Exit(1)
+	}
+
+	buf := make([]byte, 1024)
+	if _, err = conn.Read(buf); err != nil {
+		fmt.Println("Error reading: ", err.Error())
+		os.Exit(1)
+	}
+
+	if _, err = io.WriteString(conn, "+PONG\r\n"); err != nil {
+		fmt.Println("Error writing: ", err.Error())
 		os.Exit(1)
 	}
 }
